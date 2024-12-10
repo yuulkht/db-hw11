@@ -29,10 +29,18 @@
     ```
     
     *План выполнения:*
-    [Вставьте план выполнения]
+    ```
+     Bitmap Heap Scan on t_books  (cost=21.03..1336.08 rows=750 width=33) (actual time=0.092..0.094 rows=1 loops=1)
+     "  Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''expert'''::tsquery)"
+     Heap Blocks: exact=1
+     ->  Bitmap Index Scan on t_books_fts_idx  (cost=0.00..20.84 rows=750 width=0) (actual time=0.080..0.080 rows=1 loops=1)
+     "        Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''expert'''::tsquery)"
+     Planning Time: 3.623 ms
+     Execution Time: 0.244 ms
+     ```
     
     *Объясните результат:*
-    [Ваше объяснение]
+    Запрос использует GIN-индекс t_books_fts_idx для поиска, минимизируя количество операций с таблицей
 
 6. Удалите индекс:
     ```sql
@@ -90,10 +98,15 @@
      ```
      
      *План выполнения:*
-     [Вставьте план выполнения]
+     ```
+     Index Scan using t_lookup_pk on t_lookup  (cost=0.42..8.44 rows=1 width=23) (actual time=0.110..0.112 rows=1 loops=1)
+     Index Cond: ((item_key)::text = '0000000455'::text)
+     Planning Time: 0.730 ms
+     Execution Time: 0.197 ms
+     ```
      
      *Объясните результат:*
-     [Ваше объяснение]
+     Использован индекс по первичному ключу
 
 14. Выполните поиск по ключу в кластеризованной таблице:
      ```sql
@@ -102,10 +115,15 @@
      ```
      
      *План выполнения:*
-     [Вставьте план выполнения]
+     ```
+     Index Scan using t_lookup_clustered_pkey on t_lookup_clustered  (cost=0.42..8.44 rows=1 width=23) (actual time=2.283..2.288 rows=1 loops=1)
+     Index Cond: ((item_key)::text = '0000000455'::text)
+     Planning Time: 1.596 ms
+     Execution Time: 2.320 ms
+     ```
      
      *Объясните результат:*
-     [Ваше объяснение]
+     Использован индекс по первичному ключу
 
 15. Создайте индекс по значению для обычной таблицы:
      ```sql
@@ -125,10 +143,15 @@
      ```
      
      *План выполнения:*
-     [Вставьте план выполнения]
+     ```
+     Index Scan using t_lookup_value_idx on t_lookup  (cost=0.42..8.44 rows=1 width=23) (actual time=0.098..0.099 rows=0 loops=1)
+     Index Cond: ((item_value)::text = 'T_BOOKS'::text)
+     Planning Time: 0.508 ms
+     Execution Time: 0.121 ms
+     ```
      
      *Объясните результат:*
-     [Ваше объяснение]
+     Использован индекс по созданному индексу в пункте 15
 
 18. Выполните поиск по значению в кластеризованной таблице:
      ```sql
@@ -137,12 +160,17 @@
      ```
      
      *План выполнения:*
-     [Вставьте план выполнения]
+     ```
+     Index Scan using t_lookup_clustered_value_idx on t_lookup_clustered  (cost=0.42..8.44 rows=1 width=23) (actual time=0.048..0.048 rows=0 loops=1)
+     Index Cond: ((item_value)::text = 'T_BOOKS'::text)
+     Planning Time: 0.422 ms
+     Execution Time: 0.072 ms
+     ```
      
      *Объясните результат:*
-     [Ваше объяснение]
+     Использован индекс по созданному индексу в пункте 16
 
 19. Сравните производительность поиска по значению в обычной и кластеризованной таблицах:
      
      *Сравнение:*
-     [Ваше сравнение]
+     Поиск в обычной и кластеризованной таблицах занял одинаково маленькое время, стоимость одинаковая. Наверное, это связано с тем, что данные в обычной таблице изначально хорошо упорядочены.
